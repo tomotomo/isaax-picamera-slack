@@ -30,6 +30,7 @@ def upload():
 
 class PersonDetector(object):
     def __init__(self, flip = True):
+        self.last_upload = time.time()
         self.vs = PiVideoStream(resolution=(800, 608)).start()
         self.flip = flip
         time.sleep(2.0)
@@ -76,5 +77,13 @@ class PersonDetector(object):
         
         if count > 0:
             print('Count: {}'.format(count))
-                
+            delta = time.time() - self.last_upload
+            if delta > 60:
+                try:
+                    cv2.imwrite('hello.jpg', frame)
+                    upload()
+                    self.last_upload = time.time()
+                finally:
+                    print('Upload succeeded.')
+            
         return frame
